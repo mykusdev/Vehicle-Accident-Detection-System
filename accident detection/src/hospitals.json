@@ -1,0 +1,17 @@
+[
+    {
+      "name": "Hospital A",
+      "latitude": 12.345678,
+      "longitude": 98.765432,
+      "phone": "+917001234567",
+      "bedsAvailable": 5
+    },
+    {
+      "name": "Hospital B",
+      "latitude": 23.456789,
+      "longitude": 87.654321,
+      "phone": "+918002345678",
+      "bedsAvailable": 0
+    }
+  ]
+  
