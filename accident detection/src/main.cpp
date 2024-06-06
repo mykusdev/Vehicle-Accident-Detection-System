@@ -23,9 +23,28 @@ struct Hospital {
 
   // Define hospital data directly in the code
   Hospital hospitals[] = {
-    {"Hospital A", 12.345, 98.765, "+1234567890", 10},
-    {"Hospital B", 12.678, 98.123, "+9876543210", 15}
-  };
+    {"Apollo Gleneagles Hospital", 22.5351, 88.3643, "+91 33 2320 3040", 200},
+    {"Belle Vue Clinic", 22.5365, 88.3592, "+91 33 2287 2321", 150},
+    {"Fortis Hospital Kolkata", 22.5226, 88.3654, "+91 33 6628 4444", 180},
+    {"Medica Superspecialty Hospital", 22.5717, 88.4222, "+91 33 6652 0000", 220},
+    {"Desun Hospital and Heart Institute", 22.4995, 88.3859, "+91 33 7122 2200", 0}, // No beds available
+    {"AMRI Hospital", 22.5762, 88.4048, "+91 33 6614 7700", 170},
+    {"Ruby General Hospital", 22.5177, 88.4003, "+91 33 3987 6767", 0}, // No beds available
+    {"Woodlands Hospital", 22.5415, 88.3508, "+91 33 6622 9900", 190},
+    {"Peerless Hospital", 22.4931, 88.3795, "+91 33 4011 1222", 160},
+    {"Columbia Asia Hospital", 22.6038, 88.4271, "+91 33 3989 8969", 0}, // No beds available
+    {"Rabindranath Tagore International Institute of Cardiac Sciences", 22.5763, 88.4493, "+91 33 2556 0051", 240},
+    {"CMRI Hospital", 22.5455, 88.3491, "+91 33 3090 3090", 230},
+    {"ILS Hospitals", 22.5969, 88.3675, "+91 33 4033 3000", 180},
+    {"NH Rabindranath Tagore Surgical Centre", 22.6303, 88.3764, "+91 33 4050 6500", 170},
+    {"Vivekananda Institute of Medical Sciences", 22.6643, 88.4245, "+91 33 2680 6101", 220},
+    {"IQ City Medical College and Narayana Multispeciality Hospital", 23.6215, 87.0834, "+91 81700 09111", 0}, // No beds available
+    {"AMRI Hospitals Mukundapur", 22.4956, 88.4006, "+91 33 6614 7700", 200},
+    {"Peerless Hospital Durgapur", 23.5276, 87.3311, "+91 343 254 4300", 180},
+    {"B.C. Roy Memorial Hospital", 22.5322, 88.3633, "+91 33 2350 8122", 150},
+    {"EEDF", 22.5636, 88.3681, "+91 33 2356 7331", 170}
+};
+
 int numHospitals = sizeof(hospitals) / sizeof(hospitals[0]);
 
 // Pin assignments for GSM module
@@ -52,8 +71,8 @@ const int zPin = 33;          // Z-axis analog pin
 
 const int microphoneThreshold = 100;
 
-double accidentLatitude = 12.69;  // Variable to store accident latitude
-double accidentLongitude = 98.1131;
+double accidentLatitude = 23.52;  // Variable to store accident latitude
+double accidentLongitude = 87.33;
 
 TinyGPSPlus gps;
 
@@ -160,7 +179,7 @@ bool userResponded() {
   return digitalRead(buttonPin) == LOW; // Change to LOW due to pull-up resistor
 }
 
-void sendSms(String phoneNumber, const char* message) {
+void sendSms(String phoneNumber, const char* message, String hospitalName) {
   // Initialize GSM module
   gsmSerial.begin(9600, SERIAL_8N1, gsmRxPin, gsmTxPin); // Set RX and TX pins for GSM
 
@@ -187,10 +206,16 @@ void sendSms(String phoneNumber, const char* message) {
   delay(1000);  // Wait for the SMS to be sent
   Serial.println("SMS sent.");
   lcd.clear();
-  lcd.print("SMS sent.");
+  lcd.setCursor(0,0);
+  lcd.print("SMS sent to");
   lcd.setCursor(0,1);
   lcd.print(phoneNumber);
-  delay(1000);  // Delay for LCD display
+  delay(2000);
+  lcd.clear();
+
+  lcd.setCursor(0,0);
+  lcd.print(hospitalName);
+  delay(2000);  // Delay for LCD display
 }
 
 void notifyEmergencyServices() {
@@ -220,11 +245,11 @@ void notifyEmergencyServices() {
 
   if (nearestHospitalIndex != -1) {
     // Send SMS to the nearest hospital
-    sendSms(hospitals[nearestHospitalIndex].phone, "Emergency: Accident nearby, beds needed.");
+    sendSms(hospitals[nearestHospitalIndex].phone, "Emergency: Accident nearby, beds needed.", hospitals[nearestHospitalIndex].name);
   } else {
     // Send SMS to a default emergency contact
     sendSms("+917001065717", ("An accident has occurred at Latitude: " + String(accidentLatitude, 6) +
-                              " and Longitude: " + String(accidentLongitude, 6)).c_str());
+                              " and Longitude: " + String(accidentLongitude, 6)).c_str(), "Sent to saved contact");
   }
 
   delay(2000);
@@ -291,7 +316,7 @@ void loop() {
 
     delay(3000);
 
-    int countdown = 10; // Set the countdown duration
+    int countdown = 5; // Set the countdown duration
     bool buttonPressed = false;
     for (int i = countdown; i > 0; i--) {
       digitalWrite(ledPin, HIGH);
